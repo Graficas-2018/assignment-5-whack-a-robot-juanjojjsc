@@ -8,19 +8,39 @@
 <link rel="stylesheet" href="./css/main.css" />
 <link rel="stylesheet" href="./css/threejsshadows.css" />
 
-<script src="../libs/jquery-3.3.1/jquery-3.3.1.js"></script>
-<script src="../libs/jquery-ui/jquery-ui.js"></script>
+<script src="./libs/jquery-3.3.1/jquery-3.3.1.js"></script>
+<script src="./libs/jquery-ui/jquery-ui.js"></script>
 
 <script src="./libs/three.js/three.js"></script>
 <script src="./libs/three.js/controls/OrbitControls.js"></script>
 <script src="./libs/colorpicker/js/colorpicker.js"></script>
 
+<script src="./libs/three.js/loaders/GLTFLoader.js"></script>
+
 <script src="./libs/three.js/loaders/inflate.min.js"></script>
 <script src="./libs/three.js/loaders/FBXLoader.js"></script>
 
 <script src="./libs/three.js/utils/cloneFBX.js"></script>
+
+<script src="./libs/keyframe.js/keyframe.js"></script>
+
 <script src="whack.js"></script>
-<script src="ui.js"></script>
+
+<script type="text/javascript">
+
+
+function initControls()
+{
+    $("input[name=animation]").click(
+        function() {
+            var id = $("input[name=animation]:checked").attr('value');
+            changeAnimation(id);
+        }
+    );
+
+}
+
+</script>
 
 <script type="text/javascript">
 
@@ -29,7 +49,7 @@
 
 				var canvas = document.getElementById("webglcanvas");
 
-				document.addEventListener("keydown", onKeyDown, false);
+        document.addEventListener("keydown", onKeyDown, false);
 
 				// create the scene
 				createScene(canvas);
@@ -45,22 +65,27 @@
 </script>
 
 </head>
+
 <body>
 
 <div id="container">
     <canvas id="webglcanvas" width=800 height=600></canvas>
-	<div id="title">
-		Three.js FBX animation
-	</div>
+	<div id="title">Whack A Mole by JJ Santos</div>
 </div>
 
-<div id="properties">
-Use these controls to change properties
-<div id="spot" class="colorSelector">Spot<div style="background-color: #00fa00"></div></div>
-<div id="ambient" class="colorSelector">Ambient<div style="background-color: #00ff00"></div></div>
-
-
+<div id="animations">
+	Animations
+	<form>
+		<input type="radio" name="animation" value="idle" checked id="idleradio">Idle<br>
+		<input type="radio" name="animation" value="walk" id="walkradio">Walk<br>
+		<input type="radio" name="animation" value="run" id="runradio">Run<br>
+		<input type="radio" name="animation" value="attack" id="attackradio">Attack<br>
+		<input type="radio" name="animation" value="dead" id="deadradio">Dead<br>
+	</form>
 </div>
+
+
+</body>
 
 
 </html>

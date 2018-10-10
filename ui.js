@@ -27,7 +27,7 @@ function initControls()
     $('#spot').ColorPickerSetColor(spotHex);
     $('#spot div').css( "background-color", spotHex );
 
-    
+
     $('#ambient').ColorPicker({
         color: '#ffffff',
         onShow: function (colpkr) {

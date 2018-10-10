@@ -1,62 +1,100 @@
-// 1. Enable shadow mapping in the renderer.
-// 2. Enable shadows and set shadow parameters for the lights that cast shadows.
-// Both the THREE.DirectionalLight type and the THREE.SpotLight type support shadows.
-// 3. Indicate which geometry objects cast and receive shadows.
-
 var renderer = null,
 scene = null,
 camera = null,
 root = null,
-dancer = null,
+robot_idle = null,
+robot_attack = null,
+flamingo = null,
+stork = null,
+robots = [],
 group = null,
-orbitControls = null,
-mixer = null;
+orbitControls = null;
 
+var robot_mixer = {};
+var deadAnimator;
 var morphs = [];
 
 var duration = 20000; // ms
 var currentTime = Date.now();
-var dancers = [];
+
+var animation = "idle";
+
+function changeAnimation(animation_text)
+{
+    animation = animation_text;
+
+    if(animation =="dead")
+    {
+        createDeadAnimation();
+    }
+    else
+    {
+        robot_idle.rotation.x = 0;
+        robot_idle.position.y = -4;
+    }
+}
+
+function createDeadAnimation()
+{
+
+}
 
 function loadFBX()
 {
-    mixer = new THREE.AnimationMixer( scene );
-
     var loader = new THREE.FBXLoader();
-    loader.load( '../models/Samba Dancing.fbx', function ( object )
+    loader.load( './models/Robot/robot_idle.fbx', function ( object )
     {
-        object.mixer = new THREE.AnimationMixer( scene );
-        var action = object.mixer.clipAction( object.animations[ 0 ], object );
-        object.scale.set(0.3, 0.3, 0.3);
+        robot_mixer["idle"] = new THREE.AnimationMixer( scene );
+        object.scale.set(0.02, 0.02, 0.02);
         object.position.y -= 4;
-        action.play();
         object.traverse( function ( child ) {
             if ( child.isMesh ) {
                 child.castShadow = true;
                 child.receiveShadow = true;
             }
         } );
-        console.log(object.animations);
-        dancer = object;
-        dancers.push(dancer);
-        scene.add( object );
+        robot_idle = object;
+        scene.add( robot_idle );
+
+        createDeadAnimation();
+
+        robot_mixer["idle"].clipAction( object.animations[ 0 ], robot_idle ).play();
+
+        loader.load( './models/Robot/robot_atk.fbx', function ( object )
+        {
+            robot_mixer["attack"] = new THREE.AnimationMixer( scene );
+            robot_mixer["attack"].clipAction( object.animations[ 0 ], robot_idle ).play();
+        } );
+
+        loader.load( './models/Robot/robot_run.fbx', function ( object )
+        {
+            robot_mixer["run"] = new THREE.AnimationMixer( scene );
+            robot_mixer["run"].clipAction( object.animations[ 0 ], robot_idle ).play();
+        } );
+
+        loader.load( './models/Robot/robot_walk.fbx', function ( object )
+        {
+            robot_mixer["walk"] = new THREE.AnimationMixer( scene );
+            robot_mixer["walk"].clipAction( object.animations[ 0 ], robot_idle ).play();
+        } );
     } );
 }
+
 
 function onKeyDown(event)
 {
     switch(event.keyCode)
     {
         case 65:
-            console.log("Cloning dancer");
-            var newDancer = cloneFbx(dancer);
-            newDancer.mixer =  new THREE.AnimationMixer( scene );
-            var action = newDancer.mixer.clipAction( newDancer.animations[ 0 ], newDancer );
+            console.log("Cloning robot");
+            var newRobot = cloneFbx(robot_idle);
+            newRobot.mixer =  new THREE.AnimationMixer( scene );
+            var action = newRobot.mixer.clipAction( newRobot.animations[ 0 ], newRobot );
             action.play();
-            dancers.push(newDancer);
-            newDancer.position.x = dancer.position.x + 50;
-            scene.add(newDancer);
-            console.log(dancers);
+            robots.push(newRobot);
+            newRobot.position.x = robot_idle.position.x + 50;
+            scene.add(newRobot);
+            console.log(robots);
             break;
     }
 }
@@ -66,9 +104,15 @@ function animate() {
     var now = Date.now();
     var deltat = now - currentTime;
     currentTime = now;
-    if ( dancers.length > 0) {
-        for(dancer_i of dancers)
-            dancer_i.mixer.update( ( deltat ) * 0.001 );
+
+    if(robot_idle && robot_mixer[animation])
+    {
+        robot_mixer[animation].update(deltat * 0.001);
+    }
+
+    if(animation =="dead")
+    {
+        KF.update();
     }
 }
 
@@ -97,7 +141,7 @@ function setLightColor(light, r, g, b)
 var directionalLight = null;
 var spotLight = null;
 var ambientLight = null;
-var mapUrl = "../images/checker_large.gif";
+var mapUrl = "./images/checker_large.gif";
 
 var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 2048;
 
@@ -119,48 +163,29 @@ function createScene(canvas) {
 
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
-    camera.position.set(-5, 30, 80);
+    camera.position.set(-15, 6, 30);
     scene.add(camera);
 
     orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
-    orbitControls.target = new THREE.Vector3(0,20,0);
 
     // Create a group to hold all the objects
     root = new THREE.Object3D;
 
-    var spotLights = [];
-
-    spotLight = new THREE.SpotLight (0x00fa00);
-    spotLight.position.set(40, 70, -10);
+    spotLight = new THREE.SpotLight (0xffffff);
+    spotLight.position.set(-30, 8, -10);
     spotLight.target.position.set(-2, 0, -2);
-    spotLights.push(spotLight);
     root.add(spotLight);
 
-    spotLight = new THREE.SpotLight (0x5500ff);
-    spotLight.position.set(0, 70, -40);
-    spotLight.target.position.set(-2, 0, -2);
-    spotLights.push(spotLight);
-    root.add(spotLight);
+    spotLight.castShadow = true;
 
-    spotLight = new THREE.SpotLight (0xfaf600);
-    spotLight.position.set(0, 70, 40);
-    spotLight.target.position.set(-2, 0, -2);
-    spotLights.push(spotLight);
-    root.add(spotLight);
+    spotLight.shadow.camera.near = 1;
+    spotLight.shadow.camera.far = 200;
+    spotLight.shadow.camera.fov = 45;
 
-    for(var sp of spotLights)
-    {
-        sp.castShadow = true;
+    spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
+    spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
 
-        sp.shadow.camera.near = 1;
-        sp.shadow.camera.far = 200;
-        sp.shadow.camera.fov = 45;
-
-        sp.shadow.mapSize.width = SHADOW_MAP_WIDTH;
-        sp.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
-    }
-
-    ambientLight = new THREE.AmbientLight ( 0x222222 );
+    ambientLight = new THREE.AmbientLight ( 0x888888 );
     root.add(ambientLight);
 
     // Create the objects
