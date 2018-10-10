@@ -1,14 +1,17 @@
 var renderer = null,
 scene = null,
+raycaster = null,
 camera = null,
 root = null,
 robot_idle = null,
 robot_attack = null,
 flamingo = null,
 stork = null,
+robotsGroup = null,
 robots = [],
 group = null,
 orbitControls = null;
+var mouse = new THREE.Vector2(), INTERSECTED, CLICKED;
 
 var robot_mixer = {};
 var deadAnimator;
@@ -36,7 +39,8 @@ function changeAnimation(animation_text)
 
 function createDeadAnimation()
 {
-
+  robot_idle.rotation.x = 0;
+  robot_idle.position.y = -4;
 }
 
 function loadFBX()
@@ -54,7 +58,11 @@ function loadFBX()
             }
         } );
         robot_idle = object;
-        scene.add( robot_idle );
+
+        //robotsGroup.add(robot_idle);
+        //scene.add( robotsGroup );
+
+        scene.add(robot_idle);
 
         createDeadAnimation();
 
@@ -88,13 +96,15 @@ function onKeyDown(event)
         case 65:
             console.log("Cloning robot");
             var newRobot = cloneFbx(robot_idle);
-            newRobot.mixer =  new THREE.AnimationMixer( scene );
+            newRobot.mixer =  new THREE.AnimationMixer( scene.children );
             var action = newRobot.mixer.clipAction( newRobot.animations[ 0 ], newRobot );
             action.play();
             robots.push(newRobot);
-            newRobot.position.x = robot_idle.position.x + 50;
+            newRobot.position.x = robot_idle.position.x - 15;
             scene.add(newRobot);
+            //robotsGroup.add(newRobot);
             console.log(robots);
+            console.log(robotsGroup);
             break;
     }
 }
@@ -126,7 +136,7 @@ function run() {
         animate();
 
         // Update the camera controller
-        orbitControls.update();
+        //orbitControls.update();
 }
 
 function setLightColor(light, r, g, b)
@@ -166,7 +176,7 @@ function createScene(canvas) {
     camera.position.set(-15, 6, 30);
     scene.add(camera);
 
-    orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+    //orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
 
     // Create a group to hold all the objects
     root = new THREE.Object3D;
@@ -216,4 +226,35 @@ function createScene(canvas) {
 
     // Now add the group to our scene
     scene.add( root );
+
+    raycaster = new THREE.Raycaster();
+
+    document.addEventListener('mousedown', onDocumentMouseDown);
+}
+
+function onDocumentMouseDown(event)
+{
+    event.preventDefault();
+    event.preventDefault();
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    // find intersections
+    raycaster.setFromCamera( mouse, camera );
+
+    var intersects = raycaster.intersectObjects( scene.children, true );
+
+    console.log(mouse.x);
+    console.log(mouse.y);
+
+    if ( intersects.length > 0 )
+    {
+        CLICKED = intersects[ 0 ].object;
+        //changeAnimation(dad);
+        console.log(CLICKED);
+        console.log("FOUND");
+        //console.log(target[0]);
+
+    }
+
 }
