@@ -12,7 +12,8 @@ robots = [],
 group = null,
 orbitControls = null;
 var mouse = new THREE.Vector2(), INTERSECTED, CLICKED;
-
+var bgUrl = "./images/milkyway.jpg";
+var timer = 0;
 var robot_mixer = {};
 var deadAnimator;
 var morphs = [];
@@ -100,8 +101,13 @@ function onKeyDown(event)
             var action = newRobot.mixer.clipAction( newRobot.animations[ 0 ], newRobot );
             action.play();
             robots.push(newRobot);
-            newRobot.position.x = robot_idle.position.x - 15;
+            var rx = Math.floor(Math.random() * 30);
+            var rz = Math.floor(Math.random() * 30);
+            newRobot.position.x = robot_idle.position.x + rx;
+            newRobot.position.z = robot_idle.position.z + rz;
             scene.add(newRobot);
+            robot_mixer["walk"] = new THREE.AnimationMixer( scene );
+            robot_mixer["walk"].clipAction( newRobot.animations[ 0 ], newRobot ).play();
             //robotsGroup.add(newRobot);
             console.log(robots);
             console.log(robotsGroup);
@@ -129,6 +135,11 @@ function animate() {
 function run() {
     requestAnimationFrame(function() { run(); });
 
+
+        var now = Date.now();
+        var deltat = now - currentTime;
+        currentTime = now;
+
         // Render the scene
         renderer.render( scene, camera );
 
@@ -137,6 +148,8 @@ function run() {
 
         // Update the camera controller
         //orbitControls.update();
+
+        time.text("Time:" + Math.round((timer - now)/1000));
 }
 
 function setLightColor(light, r, g, b)
@@ -151,7 +164,7 @@ function setLightColor(light, r, g, b)
 var directionalLight = null;
 var spotLight = null;
 var ambientLight = null;
-var mapUrl = "./images/checker_large.gif";
+var mapUrl = "./images/texture1.png";
 
 var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 2048;
 
@@ -171,9 +184,14 @@ function createScene(canvas) {
     // Create a new Three.js scene
     scene = new THREE.Scene();
 
+    var backgroundImg = new THREE.TextureLoader().load(bgUrl);
+    backgroundImg.wrapS = backgroundImg.wrapT = THREE.RepeatWrapping;
+    backgroundImg.repeat.set(1, 1);
+    scene.background = backgroundImg
+
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
-    camera.position.set(-15, 6, 30);
+    camera.position.set(10, 0, 60);
     scene.add(camera);
 
     //orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -227,6 +245,12 @@ function createScene(canvas) {
     // Now add the group to our scene
     scene.add( root );
 
+
+    timer = Date.now() + 30000;
+    score_l = $("#score");
+    time = $("#time");
+
+
     raycaster = new THREE.Raycaster();
 
     document.addEventListener('mousedown', onDocumentMouseDown);
@@ -244,15 +268,17 @@ function onDocumentMouseDown(event)
 
     var intersects = raycaster.intersectObjects( scene.children, true );
 
-    console.log(mouse.x);
-    console.log(mouse.y);
+    //console.log(mouse.x);
+    //console.log(mouse.y);
 
     if ( intersects.length > 0 )
     {
         CLICKED = intersects[ 0 ].object;
         //changeAnimation(dad);
         console.log(CLICKED);
+
         console.log("FOUND");
+        scene.remove(CLICKED);
         //console.log(target[0]);
 
     }
