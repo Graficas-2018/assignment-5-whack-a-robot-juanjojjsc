@@ -18,6 +18,8 @@ var robot_mixer = {};
 var deadAnimator;
 var morphs = [];
 var robotModel = null;
+var time = null;
+var score = 0;
 
 var duration = 2000; // ms
 var currentTime = Date.now();
@@ -77,10 +79,8 @@ function loadFBX()
       robotModel = object;
       robotModel.position.y = 5;
       robotModel.position.z = 5;
-      console.log("robot in position");
-
-
-
+      robotModel.name = "robot0";
+      
 
       cloneRobotModel();
       cloneRobotModel();
@@ -111,7 +111,7 @@ function cloneRobotModel()
           }
       } );
 
-      robot.name = "robot" + i;
+      robot.name = "robot" + i+1;
 
       console.log(robot.name);
 
@@ -122,10 +122,7 @@ function cloneRobotModel()
       // Start idle animation
       robot.attack.start();
 
-      // // Wait some random time between 2 and 10 seconds to add robot to scene
-      // async_await(Math.floor(Math.random() * 5000) + 2000).then(function() {
-      //     scene.add(robot);
-      // });
+
 
       scene.add(robot);
       //robotsGroup.add(robot);
@@ -151,6 +148,7 @@ function animate() {
     robots.forEach(function(robot) {
         robot.mixer.update(deltat * 0.01);
     })
+
     KF.update();
 }
 
@@ -171,7 +169,15 @@ function run() {
         // Update the camera controller
         //orbitControls.update();
 
-        time.text("Time:" + Math.round((timer - now)/1000));
+        if (Math.round((timer - now)/1000) > 1)
+        {
+          time.text("Time:" + Math.round((timer - now)/1000));
+          //score_l.text(score);
+        } else {
+          time.text("GAME OVER. RELOAD.")
+          scene.remove(robot);
+        }
+
 }
 
 function setLightColor(light, r, g, b)
@@ -269,7 +275,7 @@ function createScene(canvas) {
 
 
     timer = Date.now() + 30000;
-    score_l = $("#score");
+    //score_l = $("#score");
     time = $("#time");
 
 
@@ -296,15 +302,28 @@ function onDocumentMouseDown(event)
     if ( intersects.length > 0 )
     {
         CLICKED = intersects[ 0 ].object.parent;
-        //changeAnimation(dad);
+
         console.log(CLICKED);
 
-        console.log("FOUND");
-        //CLICKED.attack.stop();
-        //CLICKED.dead.start();
-        CLICKED.active = false;
-        scene.remove(CLICKED);
-        //console.log(target[0]);
+
+      let robot = robots.filter(obj => {
+        return obj.name === CLICKED.name;
+        })[0];
+        console.log("FOUND: ");
+        //console.log(robot.name);
+        //robot.idle.stop();
+        if (robot.active)
+        {
+          robot.attack.stop();
+          robot.dead.start();
+          robot.active = false;
+        }
+
+        score = score + 1;
+        $("#score").html("Score: " + score);
+        scene.remove(robot);
+        scene.remove(robot);
+        cloneRobotModel();
 
     }
 
