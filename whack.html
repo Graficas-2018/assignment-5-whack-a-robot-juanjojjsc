@@ -49,7 +49,7 @@ function initControls()
 
 				var canvas = document.getElementById("webglcanvas");
 
-        document.addEventListener("keydown", onKeyDown, false);
+        //document.addEventListener("keydown", onKeyDown, false);
 
 				// create the scene
 				createScene(canvas);
@@ -69,7 +69,7 @@ function initControls()
 <body>
 
 <div id="container">
-    <canvas id="webglcanvas" width=800 height=600></canvas>
+    <canvas id="webglcanvas" width=1000 height=600></canvas>
 	<div id="title">Whack A Mole by JJ Santos
     <h1 id="score">Score: 0</h1>
     <h1 id="time">Timer: 30 </h1>
@@ -82,16 +82,7 @@ function initControls()
 
 </div>
 
-<div id="animations">
-	Animations
-	<form>
-		<input type="radio" name="animation" value="idle" checked id="idleradio">Idle<br>
-		<input type="radio" name="animation" value="walk" id="walkradio">Walk<br>
-		<input type="radio" name="animation" value="run" id="runradio">Run<br>
-		<input type="radio" name="animation" value="attack" id="attackradio">Attack<br>
-		<input type="radio" name="animation" value="dead" id="deadradio">Dead<br>
-	</form>
-</div>
+
 
 
 </body>

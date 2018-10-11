@@ -24,26 +24,6 @@ var currentTime = Date.now();
 
 var animation = "idle";
 
-// function changeAnimation(animation_text)
-// {
-//     animation = animation_text;
-//
-//     if(animation =="dead")
-//     {
-//         createDeadAnimation();
-//     }
-//     else
-//     {
-//         robot_idle.rotation.x = 0;
-//         robot_idle.position.y = -4;
-//     }
-// }
-//
-// function createDeadAnimation()
-// {
-//   robot_idle.rotation.x = 0;
-//   robot_idle.position.y = -4;
-// }
 
 function createDeadAnimation(robot) {
     let animator = new KF.KeyFrameAnimator;
@@ -66,9 +46,7 @@ function createDeadAnimation(robot) {
     robot.dead = animator;
 }
 
-/*
- * Idle animation (going up and down)
- */
+
 function createAttackAnimation(robot) {
     let animator = new KF.KeyFrameAnimator;
     animator.init({
@@ -100,49 +78,22 @@ function loadFBX()
       robotModel.position.y = 5;
       robotModel.position.z = 5;
       console.log("robot in position");
-      // ////
-      //
-      //
-      // robotModel.traverse(function(child) {
-      //     if (child.isMesh) {
-      //         child.castShadow = true;
-      //         child.receiveShadow = true;
-      //     }
-      // } );
-      //
-      // robotModel.name = "robot";
-      //
-      //
-      // // Add animators to objects
-      // createAttackAnimation(robotModel);
-      // createDeadAnimation(robotModel);
-      //
-      // // Start idle animation
-      // robotModel.attack.start();
-      //
-      // // Wait some random time between 2 and 10 seconds to add robot to scene
-      // // async_await(Math.floor(Math.random() * 10000) + 2000).then(function() {
-      // //     scene.add(robot);
-      // // });
-      //
-      // scene.add(robotModel);
-      // //robotsGroup.add(robot);
-      //
-      // // Add mixer to object
-      // robotModel.mixer = new THREE.AnimationMixer( scene );
-      // robotModel.mixer.clipAction(robotModel.animations[ 0 ], robot ).play();
-      // robotModel.active = true;
-      // robots.push(robotModel);
 
-      ///
+
+
+
       cloneRobotModel();
+      cloneRobotModel();
+      cloneRobotModel();
+
+
       run();
     } );
 }
 //
 function cloneRobotModel()
 {
-  for(let i=0; i<3; i++) {
+  for(let i=0; i<Math.floor(Math.random() * 4); i++) {
       let robot = cloneFbx(robotModel);
 
       robot.scale.set(0.02, 0.02, 0.02);
@@ -188,30 +139,7 @@ function cloneRobotModel()
 }
 
 
-function onKeyDown(event)
-{
-    switch(event.keyCode)
-    {
-        case 65:
-            console.log("Cloning robot");
-            var newRobot = cloneFbx(robot_idle);
-            newRobot.mixer =  new THREE.AnimationMixer( scene.children );
-            var action = newRobot.mixer.clipAction( newRobot.animations[ 0 ], newRobot );
-            action.play();
-            robots.push(newRobot);
-            var rx = Math.floor(Math.random() * 30);
-            var rz = Math.floor(Math.random() * 30);
-            newRobot.position.x = robot_idle.position.x + rx;
-            newRobot.position.z = robot_idle.position.z + rz;
-            scene.add(newRobot);
-            robot_mixer["walk"] = new THREE.AnimationMixer( scene );
-            robot_mixer["walk"].clipAction( newRobot.animations[ 0 ], newRobot ).play();
-            //robotsGroup.add(newRobot);
-            console.log(robots);
-            console.log(robotsGroup);
-            break;
-    }
-}
+
 
 function animate() {
 
@@ -219,15 +147,6 @@ function animate() {
     var deltat = now - currentTime;
     currentTime = now;
 
-    // if(robot_idle && robot_mixer[animation])
-    // {
-    //     robot_mixer[animation].update(deltat * 0.001);
-    // }
-    //
-    // if(animation =="dead")
-    // {
-    //     KF.update();
-    // }
 
     robots.forEach(function(robot) {
         robot.mixer.update(deltat * 0.01);
