@@ -295,11 +295,14 @@ function onDocumentMouseDown(event)
 
     if ( intersects.length > 0 )
     {
-        CLICKED = intersects[ 0 ].object;
+        CLICKED = intersects[ 0 ].object.parent;
         //changeAnimation(dad);
         console.log(CLICKED);
 
         console.log("FOUND");
+        //CLICKED.attack.stop();
+        //CLICKED.dead.start();
+        CLICKED.active = false;
         scene.remove(CLICKED);
         //console.log(target[0]);
 
